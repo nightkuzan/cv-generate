@@ -128,7 +128,7 @@ export default function CVGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" data-cv-container>
       {/* Header */}
       <div className="bg-white border-b border-gray-300 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

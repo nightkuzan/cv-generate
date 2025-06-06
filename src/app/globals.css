@@ -16,18 +16,7 @@
   --ring: #3b82f4;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f172a;
-    --foreground: #f1f5f9;
-    --primary: #60a5fa;
-    --primary-dark: #3b82f6;
-    --secondary: #94a3b8;
-    --card: #1e293b;
-    --border: #334155;
-    --input: #1e293b;
-  }
-}
+
 
 * {
   box-sizing: border-box;
@@ -101,33 +90,56 @@ body {
 
 /* Print styles for CV */
 @media print {
+  /* Basic print style resets */
   body {
     font-size: 12pt;
     line-height: 1.4;
-    color: black !important;
-    background: white !important;
+    color: black;
+    background: white;
+    margin: 0;
+    padding: 0;
   }
   
-  .print\\:hidden {
+  /* Hide non-CV elements when printing */
+  body > *:not(#__next),
+  #__next > *:not(main),
+  main > *:not(.container-mobile),
+  .container-mobile > *:not([data-cv-container]) {
     display: none !important;
   }
   
-  .print\\:block {
+  /* Make sure the CV preview is visible and properly formatted */
+  #cv-preview {
     display: block !important;
-  }
-  
-  /* Ensure proper page breaks */
-  .print\\:break-inside-avoid {
-    break-inside: avoid;
-  }
-  
-  /* Remove shadows and borders for print */
-  .print\\:no-shadow {
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0.5in !important;
+    background-color: white !important;
+    color: black !important;
+    margin: 0 auto !important;
+    width: auto !important;
     box-shadow: none !important;
     border: none !important;
   }
   
-  /* Adjust margins for print */
+  /* Ensure all text in the CV is black for better printing */
+  #cv-preview * {
+    color: black !important;
+  }
+  
+  /* Hide UI elements in the CV preview */
+  #cv-preview .print\\:hidden,
+  #cv-preview [data-html2canvas-ignore="true"] {
+    display: none !important;
+  }
+  
+  /* Link styling */
+  #cv-preview a {
+    color: black !important;
+    text-decoration: underline !important;
+  }
+  
+  /* Ensure margins and padding are appropriate */
   .print\\:p-0 {
     padding: 0 !important;
   }
@@ -136,15 +148,13 @@ body {
     margin: 0 !important;
   }
   
-  /* Links styling for print */
-  a {
-    color: black !important;
-    text-decoration: none !important;
+  /* Utility classes for print */
+  .print\\:block {
+    display: block !important;
   }
   
-  /* Ensure text is black */
-  * {
-    color: black !important;
+  .print\\:break-inside-avoid {
+    break-inside: avoid !important;
   }
 }
 
@@ -212,6 +222,20 @@ body {
 .form-input-enhanced:focus::placeholder {
   opacity: 0.5;
 }
+
+/* Ensure input text is always visible */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="url"],
+textarea,
+select {
+  color: #374151 !important; /* Dark gray text */
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+}
+
+
 
 /* Card hover effects */
 .card-hover {
@@ -464,6 +488,32 @@ body {
   
   .cv-page-break {
     page-break-before: always;
+  }
+  
+  /* Special class added during print process */
+  body.print-mode {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  
+  /* Hide UI elements when printing */
+  body.print-mode nav,
+  body.print-mode header,
+  body.print-mode footer,
+  body.print-mode button:not(.print-visible),
+  body.print-mode .print\:hidden {
+    display: none !important;
+  }
+  
+  /* Ensure the CV is the only thing visible */
+  #cv-preview {
+    display: block !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
   }
 }
 

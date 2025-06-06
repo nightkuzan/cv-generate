@@ -3,6 +3,7 @@
 import { CVData } from "@/types/cv";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import PrintButton from "./PrintButton";
 
 interface CVPreviewProps {
   cvData: CVData;
@@ -26,7 +27,35 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
   };
 
   const handlePrint = () => {
-    window.print();
+    // Ensure we're ready to print
+    const cvPreview = document.getElementById("cv-preview");
+
+    // Create a special print-only style
+    const style = document.createElement("style");
+    style.id = "print-now-style";
+    style.innerHTML = `
+      @media print {
+        body * { visibility: hidden; }
+        #cv-preview, #cv-preview * { visibility: visible !important; }
+        #cv-preview { 
+          position: absolute !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 100% !important;
+          padding: 20mm !important;
+          margin: 0 !important;
+          background: white !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Trigger print
+    setTimeout(() => {
+      window.print();
+      // Clean up
+      document.head.removeChild(style);
+    }, 100);
   };
 
   const handleDownload = async () => {
@@ -186,12 +215,7 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <h2 className="text-xl font-semibold text-gray-900">CV Preview</h2>
           <div className="flex gap-2">
-            <button
-              onClick={handlePrint}
-              className="border border-gray-300 text-gray-700 px-4 py-2 rounded font-medium hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-500"
-            >
-              Print
-            </button>
+            <PrintButton cvData={cvData} />
             <button
               onClick={handleDownload}
               data-download-btn
@@ -205,7 +229,7 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
 
       <div
         id="cv-preview"
-        className="p-6 bg-white max-h-screen overflow-y-auto print:max-h-none print:overflow-visible print:p-0 print:m-0"
+        className="p-6 bg-white max-h-screen overflow-y-auto print:max-h-none print:overflow-visible print:p-6 print:m-0 print:shadow-none print:block"
       >
         {/* Header */}
         <div className="mb-6 pb-4 border-b border-gray-300">

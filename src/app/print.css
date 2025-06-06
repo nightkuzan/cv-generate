@@ -1,0 +1,90 @@
+/* 
+ * Dedicated print stylesheet for CV Generator
+ * This file contains styles that will only be applied when printing
+ */
+
+@media print {
+  /* RESET ALL STYLES FIRST */
+  * {
+    box-sizing: border-box !important;
+  }
+  
+  /* Hide everything initially */
+  body * {
+    visibility: hidden !important;
+    display: none !important;
+  }
+  
+  /* Only show the CV preview and its children */
+  #cv-preview, 
+  #cv-preview * {
+    visibility: visible !important;
+    display: initial !important;
+  }
+  
+  /* Ensure proper display structure */
+  #cv-preview h1, #cv-preview h2, #cv-preview h3, 
+  #cv-preview p, #cv-preview div {
+    display: block !important;
+  }
+  
+  /* Position the CV preview at the top of the page */
+  #cv-preview {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    padding: 20mm !important;
+    margin: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background-color: white !important;
+    border: none !important;
+    box-shadow: none !important;
+    z-index: 9999 !important;
+  }
+  
+  /* Hide UI controls */
+  #cv-preview [data-html2canvas-ignore="true"],
+  #cv-preview .print\\:hidden {
+    display: none !important;
+  }
+  
+  /* Ensure BLACK TEXT for printing */
+  #cv-preview, #cv-preview * {
+    color: black !important;
+    text-rendering: optimizeLegibility !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Show links properly */
+  #cv-preview a {
+    color: black !important;
+    text-decoration: underline !important;
+  }
+  
+  /* Avoid page breaks in sections */
+  #cv-preview > div {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  
+  /* Avoid breaks after headings */
+  #cv-preview h1, #cv-preview h2, #cv-preview h3 {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+  
+  /* Paper size and margins */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  
+  /* Grid layout adjustments */
+  #cv-preview .grid {
+    display: grid !important;
+  }
+}
