@@ -30,7 +30,7 @@ export default function PrintOptimizer() {
             height: auto !important;
             overflow: visible !important;
             background: white !important;
-            padding: 20mm !important;
+            padding: 10mm !important;
             margin: 0 !important;
             box-shadow: none !important;
             color: black !important;
@@ -68,7 +68,7 @@ export default function PrintOptimizer() {
         clonedDiv.style.width = "100%";
         clonedDiv.style.backgroundColor = "white";
         clonedDiv.style.zIndex = "9999";
-        clonedDiv.style.padding = "20mm";
+        clonedDiv.style.padding = "10mm";
 
         // Add to body for printing
         document.body.appendChild(clonedDiv);

@@ -42,7 +42,7 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
           left: 0 !important;
           top: 0 !important;
           width: 100% !important;
-          padding: 20mm !important;
+          padding: 8mm !important;
           margin: 0 !important;
           background: white !important;
         }
@@ -207,19 +207,19 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
   };
 
   return (
-    <div className="bg-white rounded border border-gray-300 overflow-hidden">
+    <div className="bg-white rounded border border-gray-300 overflow-hidden shadow-sm">
       <div
         className="p-4 bg-gray-50 border-b border-gray-300 print:hidden"
         data-html2canvas-ignore="true"
       >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <h2 className="text-xl font-semibold text-gray-900">CV Preview</h2>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap w-full sm:w-auto gap-2">
             <PrintButton cvData={cvData} />
             <button
               onClick={handleDownload}
               data-download-btn
-              className="bg-gray-900 text-white px-4 py-2 rounded font-medium hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500"
+              className="flex-1 sm:flex-none bg-gray-900 text-white px-4 py-2 rounded font-medium hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 text-sm"
             >
               Download PDF
             </button>
@@ -229,7 +229,7 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
 
       <div
         id="cv-preview"
-        className="p-6 bg-white max-h-screen overflow-y-auto print:max-h-none print:overflow-visible print:p-6 print:m-0 print:shadow-none print:block"
+        className="p-4 sm:p-6 bg-white max-h-[calc(100vh-180px)] overflow-y-auto print:max-h-none print:overflow-visible print:p-6 print:m-0 print:shadow-none print:block"
       >
         {/* Header */}
         <div className="mb-6 pb-4 border-b border-gray-300">

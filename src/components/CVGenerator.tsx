@@ -138,24 +138,20 @@ export default function CVGenerator() {
               <p className="text-gray-600 text-sm">Create a professional CV</p>
             </div>
 
-            <div className="flex gap-3 w-full sm:w-auto">
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
               <button
                 onClick={loadSampleData}
-                className="flex-1 sm:flex-none border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-500 text-sm font-medium"
+                className="flex-1 sm:flex-none border border-gray-300 text-gray-700 px-3 py-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-500 text-sm font-medium"
+                aria-label="Load sample CV data"
               >
                 Load Sample
               </button>
               <button
                 onClick={clearAllData}
-                className="flex-1 sm:flex-none border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-500 text-sm font-medium"
+                className="flex-1 sm:flex-none border border-gray-300 text-gray-700 px-3 py-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-500 text-sm font-medium"
+                aria-label="Clear all CV data"
               >
                 Clear All
-              </button>
-              <button
-                onClick={() => setShowPreview(!showPreview)}
-                className="flex-1 sm:flex-none bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 xl:hidden text-sm font-medium"
-              >
-                {showPreview ? "Edit" : "Preview"}
               </button>
             </div>
           </div>
@@ -164,18 +160,48 @@ export default function CVGenerator() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div
-          className={`grid gap-6 transition-all duration-300 ${
-            showPreview ? "xl:grid-cols-1" : "xl:grid-cols-2"
-          }`}
-        >
+        {/* Mobile Toggle Controls */}
+        <div className="lg:hidden flex justify-center mb-4">
+          <div className="inline-flex rounded-md shadow-sm" role="group">
+            <button
+              onClick={() => setShowPreview(false)}
+              className={`px-4 py-2 text-sm font-medium rounded-l-lg ${
+                !showPreview
+                  ? "bg-gray-900 text-white"
+                  : "bg-white text-gray-700 border border-gray-300"
+              }`}
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => setShowPreview(true)}
+              className={`px-4 py-2 text-sm font-medium rounded-r-lg ${
+                showPreview
+                  ? "bg-gray-900 text-white"
+                  : "bg-white text-gray-700 border border-gray-300"
+              }`}
+            >
+              Preview
+            </button>
+          </div>
+        </div>
+
+        <div className="lg:grid lg:grid-cols-2 lg:gap-6">
           {/* Form Section */}
-          <div className={`${showPreview ? "hidden xl:block" : "block"}`}>
+          <div
+            className={`${
+              showPreview ? "hidden lg:block" : "block"
+            } mb-6 lg:mb-0`}
+          >
             <CVForm cvData={cvData} updateCVData={updateCVData} />
           </div>
 
-          {/* Preview Section */}
-          <div className={`${showPreview ? "block" : "hidden xl:block"}`}>
+          {/* Preview Section - Always render but hide with CSS for better state preservation */}
+          <div
+            className={`${
+              showPreview ? "block" : "hidden lg:block"
+            } lg:sticky lg:top-24 lg:self-start`}
+          >
             <CVPreview cvData={cvData} />
           </div>
         </div>

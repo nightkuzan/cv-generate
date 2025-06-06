@@ -56,7 +56,7 @@ export default function PrintButton({ cvData }: PrintButtonProps) {
             body {
               font-family: Arial, sans-serif;
               margin: 0;
-              padding: 20mm;
+              padding: 8mm;
               color: black;
               background: white;
             }
@@ -65,22 +65,22 @@ export default function PrintButton({ cvData }: PrintButtonProps) {
               color: black;
             }
             .cv-section {
-              margin-bottom: 15px;
+              margin-bottom: 8px;
             }
             .cv-header {
-              margin-bottom: 20px;
+              margin-bottom: 10px;
               border-bottom: 1px solid #ddd;
-              padding-bottom: 10px;
+              padding-bottom: 6px;
             }
             .section-title {
-              font-size: 18px;
+              font-size: 16px;
               font-weight: bold;
               border-bottom: 1px solid #ddd;
-              padding-bottom: 5px;
-              margin-bottom: 10px;
+              padding-bottom: 3px;
+              margin-bottom: 6px;
             }
             .entry {
-              margin-bottom: 12px;
+              margin-bottom: 8px;
             }
             .entry-header {
               display: flex;
@@ -349,7 +349,8 @@ export default function PrintButton({ cvData }: PrintButtonProps) {
   return (
     <button
       onClick={handlePrint}
-      className="border border-gray-300 text-gray-700 px-4 py-2 rounded font-medium hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-500"
+      className="flex-1 sm:flex-none border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-500"
+      aria-label="Print CV"
     >
       Print CV
     </button>
