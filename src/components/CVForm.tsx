@@ -5,9 +5,9 @@ import { CVData } from "@/types/cv";
 import PersonalInfoForm from "./PersonalInfoForm";
 import ExperienceForm from "./ExperienceForm";
 import EducationForm from "./EducationForm";
-// import SkillsForm from "./SkillsForm";
-// import ProjectsForm from "./ProjectsForm";
-// import LanguagesForm from "./LanguagesForm";
+import SkillsForm from "./SkillsForm";
+import ProjectsForm from "./ProjectsForm";
+import LanguagesForm from "./LanguagesForm";
 
 interface CVFormProps {
   cvData: CVData;
@@ -68,11 +68,26 @@ export default function CVForm({ cvData, updateCVData }: CVFormProps) {
           />
         );
       case "skills":
-        return <div>Skills form temporarily disabled...</div>;
+        return (
+          <SkillsForm
+            skills={cvData.skills}
+            updateSkills={(skills) => updateCVData({ skills })}
+          />
+        );
       case "projects":
-        return <div>Projects form temporarily disabled...</div>;
+        return (
+          <ProjectsForm
+            projects={cvData.projects}
+            updateProjects={(projects) => updateCVData({ projects })}
+          />
+        );
       case "languages":
-        return <div>Languages form temporarily disabled...</div>;
+        return (
+          <LanguagesForm
+            languages={cvData.languages}
+            updateLanguages={(languages) => updateCVData({ languages })}
+          />
+        );
       default:
         return null;
     }
