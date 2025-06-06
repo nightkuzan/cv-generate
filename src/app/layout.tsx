@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./print.css";
+import "./responsive.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,7 +21,8 @@ export const metadata: Metadata = {
   keywords:
     "CV generator, resume builder, professional resume, CV maker, job application",
   authors: [{ name: "CV Generator Team" }],
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+  viewport:
+    "width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes",
 };
 
 export default function RootLayout({
