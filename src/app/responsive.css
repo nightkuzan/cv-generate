@@ -1,0 +1,109 @@
+/* 
+ * Enhanced responsive styles for CV Generator
+ * This file contains additional styles for responsive design
+ */
+
+/* Mobile first responsive design */
+.cv-responsive-container {
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+/* Tab control for mobile */
+.cv-tabs {
+  display: flex;
+  width: 100%;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.cv-tab {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* CV Preview specific responsive styles */
+@media (max-width: 768px) {
+  #cv-preview {
+    font-size: 0.875rem;
+  }
+  
+  #cv-preview h1 {
+    font-size: 1.5rem;
+  }
+  
+  #cv-preview h2 {
+    font-size: 1.25rem;
+  }
+  
+  #cv-preview h3 {
+    font-size: 1rem;
+  }
+  
+  .cv-action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  .cv-action-buttons button {
+    flex: 1;
+    margin: 0.25rem;
+    min-width: 120px;
+  }
+}
+
+/* Sticky preview for desktop */
+@media (min-width: 1024px) {
+  .cv-preview-sticky {
+    position: sticky;
+    top: 2rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+  }
+}
+
+/* Form improvements for small screens */
+@media (max-width: 640px) {
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents iOS zoom on input focus */
+  }
+  
+  .form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .form-label {
+    margin-bottom: 0.25rem;
+  }
+}
+
+/* Toggle Animation */
+.toggle-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.toggle-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.toggle-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toggle-exit-active {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 300ms, transform 300ms;
+}
