@@ -158,6 +158,35 @@ body {
   }
 }
 
+/* PDF Export Optimization */
+@media print, (max-width: 768px) {
+  #projects-section, #languages-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    display: block !important;
+    visibility: visible !important;
+    overflow: visible !important;
+  }
+  
+  .project-item, .language-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    visibility: visible !important;
+  }
+  
+  .grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+  }
+  
+  #cv-preview {
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+
 /* Mobile-first responsive utilities */
 .container-mobile {
   width: 100%;
@@ -565,4 +594,27 @@ select {
 .file-upload-zone.dragover {
   border-color: #10b981;
   background-color: rgba(16, 185, 129, 0.05);
+}
+
+/* PDF Links Enhancements */
+a[data-pdf-link="true"] {
+  color: #1d4ed8 !important;
+  text-decoration: underline !important;
+  font-weight: 500 !important;
+}
+
+@media print, screen {
+  [data-pdf-link="true"] {
+    display: inline-block !important;
+    visibility: visible !important;
+    color: #1d4ed8 !important;
+    text-decoration: underline !important;
+  }
+  
+  #projects-section a[data-pdf-link="true"],
+  #cv-preview a[data-pdf-link="true"] {
+    color: #1d4ed8 !important;
+    text-decoration: underline !important;
+    display: inline-block !important;
+  }
 }

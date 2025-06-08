@@ -60,9 +60,12 @@
   }
   
   /* Show links properly */
-  #cv-preview a {
-    color: black !important;
+  #cv-preview a, 
+  #cv-preview a[data-pdf-link="true"] {
+    color: #1d4ed8 !important;
     text-decoration: underline !important;
+    display: inline-block !important;
+    visibility: visible !important;
   }
   
   /* Avoid page breaks in sections */
@@ -108,5 +111,41 @@
   /* Grid layout adjustments */
   #cv-preview .grid {
     display: grid !important;
+  }
+  
+  /* Force projects and languages to display properly */
+  #cv-preview #projects-section,
+  #cv-preview #languages-section {
+    display: block !important;
+    visibility: visible !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    overflow: visible !important;
+    margin-top: 10mm !important;
+  }
+  
+  #cv-preview .project-item,
+  #cv-preview .language-item {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    display: block !important;
+    visibility: visible !important;
+    margin-bottom: 5mm !important;
+  }
+  
+  /* Force project links to display */
+  #cv-preview .project-item a {
+    color: #1d4ed8 !important;
+    text-decoration: underline !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    margin-right: 0.5rem !important;
+  }
+  
+  /* Ensure grid layouts render properly */
+  #cv-preview .grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 4mm !important;
   }
 }

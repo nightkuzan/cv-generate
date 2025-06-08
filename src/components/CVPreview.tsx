@@ -70,6 +70,170 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
         return;
       }
 
+      // Import the improved PDF generation utilities
+      const { generatePDFWithProperPagination, generatePDFFromHTML } =
+        await import("@/utils/pdfGenerator");
+
+      // Ensure all sections are fully rendered before proceeding
+      // This helps with async rendering issues that might affect projects and languages
+      const waitForSectionsToRender = () => {
+        return new Promise<void>((resolve) => {
+          // Check if all sections are already present
+          const projectsSection = element.querySelector("#projects-section");
+          const languagesSection = element.querySelector("#languages-section");
+
+          if (
+            cvData.projects.length > 0 &&
+            projectsSection &&
+            projectsSection.querySelectorAll(".project-item").length ===
+              cvData.projects.length &&
+            cvData.languages.length > 0 &&
+            languagesSection &&
+            languagesSection.querySelectorAll(".language-item").length ===
+              cvData.languages.length
+          ) {
+            console.log("All sections already rendered correctly");
+            resolve();
+            return;
+          }
+
+          console.log("Waiting for sections to fully render...");
+
+          // Set up a mutation observer to detect when the DOM is updated
+          const observer = new MutationObserver((mutations) => {
+            const projectItems = element.querySelectorAll(".project-item");
+            const languageItems = element.querySelectorAll(".language-item");
+
+            console.log("DOM mutation detected:", {
+              projectItems: projectItems.length,
+              languageItems: languageItems.length,
+              expectedProjects: cvData.projects.length,
+              expectedLanguages: cvData.languages.length,
+            });
+
+            // Check if all expected items are now present
+            if (
+              (cvData.projects.length === 0 ||
+                projectItems.length === cvData.projects.length) &&
+              (cvData.languages.length === 0 ||
+                languageItems.length === cvData.languages.length)
+            ) {
+              observer.disconnect();
+              resolve();
+            }
+          });
+
+          // Start observing the CV preview for any changes
+          observer.observe(element, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            characterData: true,
+          });
+
+          // Set a timeout to prevent hanging if something goes wrong
+          setTimeout(() => {
+            observer.disconnect();
+            console.warn(
+              "Timed out waiting for DOM updates, proceeding anyway"
+            );
+            resolve();
+          }, 2000);
+        });
+      };
+
+      // Pre-process the data for PDF generation
+      const ensureAllDataIsProcessed = () => {
+        // Create a processed copy of the CV data
+        const processedData = { ...cvData };
+
+        // Ensure projects have unique IDs and all required fields
+        if (processedData.projects.length > 0) {
+          processedData.projects = processedData.projects.map(
+            (project, index) => {
+              // Make sure we have an ID
+              if (!project.id) {
+                return {
+                  ...project,
+                  id: `project-${Date.now()}-${index}`,
+                };
+              }
+              return project;
+            }
+          );
+        }
+
+        // Ensure languages have unique IDs and all required fields
+        if (processedData.languages.length > 0) {
+          processedData.languages = processedData.languages.map(
+            (language, index) => {
+              // Make sure we have an ID
+              if (!language.id) {
+                return {
+                  ...language,
+                  id: `language-${Date.now()}-${index}`,
+                };
+              }
+              return language;
+            }
+          );
+        }
+
+        console.log("Pre-processed data for PDF generation:", {
+          projectsCount: processedData.projects.length,
+          languagesCount: processedData.languages.length,
+        });
+
+        return processedData;
+      };
+
+      // Process the data before continuing
+      const processedCVData = ensureAllDataIsProcessed();
+
+      // Wait for DOM to be fully rendered before proceeding
+      await waitForSectionsToRender();
+
+      // Import helpers for link enhancement
+      try {
+        const { enhanceLinksForPDF } = await import("@/utils/pdfHelpers");
+        // Enhance links to ensure they're visible in PDF
+        enhanceLinksForPDF(element);
+        console.log("Links enhanced for PDF export");
+      } catch (error) {
+        console.warn("Link enhancement unavailable:", error);
+      }
+
+      // Run diagnostics on the CV sections if needed
+      try {
+        const diagnostics = {
+          projectsSection: {
+            exists: !!element.querySelector("#projects-section"),
+            itemCount: element.querySelectorAll(".project-item").length,
+          },
+          languagesSection: {
+            exists: !!element.querySelector("#languages-section"),
+            itemCount: element.querySelectorAll(".language-item").length,
+          },
+        };
+        console.log("PDF generation diagnostics:", diagnostics);
+      } catch (diagnosticError) {
+        console.warn("Diagnostics error:", diagnosticError);
+      }
+
+      // Debug data validation
+      console.log("CV data during PDF generation:", {
+        projectsCount: cvData.projects.length,
+        languagesCount: cvData.languages.length,
+        projectsData: cvData.projects,
+        languagesData: cvData.languages,
+      });
+
+      // Verify projects and languages are in the DOM before proceeding
+      console.log("Original DOM elements:", {
+        projectsCount: element.querySelectorAll(".project-item").length,
+        languagesCount: element.querySelectorAll(".language-item").length,
+      });
+
       console.log("CV element found:", element);
 
       // Show loading state
@@ -83,71 +247,30 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
         downloadBtn.textContent = "Generating PDF...";
       }
 
-      console.log("Starting html2canvas...");
+      // Try the enhanced PDF generation approach
+      let pdf;
 
-      // Create canvas from the CV element with simplified options
-      const canvas = await html2canvas(element, {
-        scale: 1.5, // Reduced scale to avoid memory issues
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: "#ffffff",
-        logging: true, // Enable logging for debugging
-        removeContainer: true,
-        ignoreElements: (element) => {
-          // Ignore elements that might cause issues
-          return (
-            element.classList.contains("print:hidden") ||
-            element.getAttribute("data-html2canvas-ignore") === "true"
-          );
-        },
-      });
+      try {
+        console.log("Using enhanced PDF generation with proper pagination");
+        pdf = await generatePDFWithProperPagination(element, {
+          scale: 2.0,
+          quality: 0.95,
+          margin: 0,
+          padding: 2,
+        });
+      } catch (firstAttemptError) {
+        console.error(
+          "First PDF generation approach failed:",
+          firstAttemptError
+        );
 
-      console.log("Canvas created:", canvas.width, "x", canvas.height);
-
-      if (!canvas || canvas.width === 0 || canvas.height === 0) {
-        throw new Error("Failed to create canvas or canvas is empty");
+        // Try the fallback approach using direct HTML generation
+        console.log("Trying fallback HTML-based PDF generation");
+        pdf = await generatePDFFromHTML(cvData, formatDateRange);
       }
 
-      // Get canvas dimensions for PDF
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm (corrected)
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      console.log("PDF dimensions:", { imgWidth, imgHeight, pageHeight });
-
-      // Create PDF
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-        compress: true,
-      });
-
-      // Convert canvas to image data
-      const imgData = canvas.toDataURL("image/jpeg", 0.95); // Use JPEG with compression
-
-      console.log("Image data created, length:", imgData.length);
-
-      // Add image to PDF
-      if (imgHeight <= pageHeight) {
-        // Single page
-        pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
-      } else {
-        // Multiple pages
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        // First page
-        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        // Additional pages
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
+      if (!pdf) {
+        throw new Error("Failed to generate PDF with both approaches");
       }
 
       // Generate filename with current date
@@ -178,13 +301,19 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
       if (error instanceof Error) {
         if (error.message.includes("canvas")) {
           errorMessage +=
-            "Could not capture the CV content. Please try scrolling to the top of the CV and try again.";
+            "Could not capture the CV content. Please try refreshing the page and try again.";
         } else if (
           error.message.includes("memory") ||
           error.message.includes("size")
         ) {
           errorMessage +=
             "The CV is too large to process. Try reducing the content or contact support.";
+        } else if (
+          error.message.includes("oklch") ||
+          error.message.includes("color")
+        ) {
+          errorMessage +=
+            "There was an issue with color formatting. Please try printing the CV instead.";
         } else {
           errorMessage += `Error: ${error.message}`;
         }
@@ -229,7 +358,9 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
 
       <div
         id="cv-preview"
-        className="p-4 sm:p-6 bg-white max-h-[calc(100vh-180px)] overflow-y-auto print:max-h-none print:overflow-visible print:p-6 print:m-0 print:shadow-none print:block"
+        className="p-4 sm:p-5 bg-white max-h-[calc(100vh-180px)] overflow-y-auto print:max-h-none print:overflow-visible print:p-4 print:m-0 print:shadow-none print:block"
+        data-pdf-mode="auto"
+        style={{ breakInside: "auto" }}
       >
         {/* Header */}
         <div className="mb-6 pb-4 border-b border-gray-300">
@@ -257,6 +388,7 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
               <a
                 href={cvData.personalInfo.website}
                 className="text-gray-900 underline"
+                data-pdf-link="true"
               >
                 Website
               </a>
@@ -269,6 +401,7 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
                 <a
                   href={cvData.personalInfo.linkedin}
                   className="text-gray-900 underline"
+                  data-pdf-link="true"
                 >
                   LinkedIn
                 </a>
@@ -283,6 +416,7 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
                 <a
                   href={cvData.personalInfo.github}
                   className="text-gray-900 underline"
+                  data-pdf-link="true"
                 >
                   GitHub
                 </a>
@@ -290,11 +424,10 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
             )}
           </div>
         </div>
-
         {/* Professional Summary */}
         {cvData.personalInfo.summary && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-black mb-2 border-b border-gray-300 pb-1">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-black mb-1 border-b border-gray-300 pb-1">
               Summary
             </h2>
             <p className="text-gray-800 text-sm leading-relaxed">
@@ -302,16 +435,19 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
             </p>
           </div>
         )}
-
         {/* Experience */}
         {cvData.experience.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-6" data-section-type="experience">
             <h2 className="text-lg font-semibold text-black mb-2 border-b border-gray-300 pb-1">
               Experience
             </h2>
             <div className="space-y-4">
               {cvData.experience.map((exp) => (
-                <div key={exp.id}>
+                <div
+                  key={exp.id}
+                  data-experience-id={exp.id}
+                  className="experience-item"
+                >
                   <div className="flex justify-between items-start mb-1">
                     <div>
                       <h3 className="font-semibold text-black text-sm">
@@ -340,16 +476,19 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
             </div>
           </div>
         )}
-
         {/* Education */}
         {cvData.education.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-6" data-section-type="education">
             <h2 className="text-lg font-semibold text-black mb-2 border-b border-gray-300 pb-1">
               Education
             </h2>
             <div className="space-y-3">
               {cvData.education.map((edu) => (
-                <div key={edu.id}>
+                <div
+                  key={edu.id}
+                  data-education-id={edu.id}
+                  className="education-item"
+                >
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-semibold text-black text-sm">
@@ -374,17 +513,20 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
               ))}
             </div>
           </div>
-        )}
-
+        )}{" "}
         {/* Skills */}
         {cvData.skills.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-6" data-section-type="skills">
             <h2 className="text-lg font-semibold text-black mb-2 border-b border-gray-300 pb-1">
               Skills
             </h2>
             <div className="grid grid-cols-2 gap-2">
               {cvData.skills.map((skill) => (
-                <div key={skill.id} className="flex justify-between text-sm">
+                <div
+                  key={skill.id}
+                  data-skill-id={skill.id}
+                  className="skill-item flex justify-between text-sm"
+                >
                   <span className="text-black">{skill.name}</span>
                   <span className="text-xs text-gray-600">{skill.level}</span>
                 </div>
@@ -392,16 +534,29 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
             </div>
           </div>
         )}
-
         {/* Projects */}
         {cvData.projects.length > 0 && (
-          <div className="mb-6">
+          <div
+            className="mb-3"
+            id="projects-section"
+            data-section-type="projects"
+            style={{
+              breakInside: "avoid-page",
+              pageBreakInside: "avoid",
+              display: "block",
+            }}
+          >
             <h2 className="text-lg font-semibold text-black mb-2 border-b border-gray-300 pb-1">
               Projects
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {cvData.projects.map((project) => (
-                <div key={project.id}>
+                <div
+                  key={project.id}
+                  data-project-id={project.id}
+                  className="project-item"
+                  style={{ breakInside: "avoid", pageBreakInside: "avoid" }}
+                >
                   <div className="flex justify-between items-start mb-1">
                     <h3 className="font-semibold text-black text-sm">
                       {project.name}
@@ -411,6 +566,7 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
                         <a
                           href={project.url}
                           className="text-gray-900 underline"
+                          data-pdf-link="true"
                         >
                           Demo
                         </a>
@@ -419,6 +575,7 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
                         <a
                           href={project.github}
                           className="text-gray-900 underline"
+                          data-pdf-link="true"
                         >
                           Code
                         </a>
@@ -440,16 +597,29 @@ export default function CVPreview({ cvData }: CVPreviewProps) {
             </div>
           </div>
         )}
-
         {/* Languages */}
         {cvData.languages.length > 0 && (
-          <div>
+          <div
+            className="mt-1"
+            id="languages-section"
+            data-section-type="languages"
+            style={{
+              breakInside: "avoid-page",
+              pageBreakInside: "avoid",
+              display: "block",
+            }}
+          >
             <h2 className="text-lg font-semibold text-black mb-2 border-b border-gray-300 pb-1">
               Languages
             </h2>
             <div className="grid grid-cols-2 gap-2">
               {cvData.languages.map((language) => (
-                <div key={language.id} className="flex justify-between text-sm">
+                <div
+                  key={language.id}
+                  data-language-id={language.id}
+                  className="language-item flex justify-between text-sm"
+                  style={{ breakInside: "avoid", pageBreakInside: "avoid" }}
+                >
                   <span className="text-black">{language.name}</span>
                   <span className="text-xs text-gray-600">
                     {language.proficiency}
